@@ -1,8 +1,4 @@
-// get only unique categories (hardest)
-// iterate over categories, return buttons
-// make sure to select buttons when they are available
-
-// items
+// data array: menu
 const menu = [
   {
     id: 1,
@@ -87,12 +83,22 @@ const menu = [
 ];
 
 const getUniqueCategories = menuArray => {
-  const categories = ['all'];
-  menuArray.forEach(item => {
-    if (!categories.includes(item.category)) {
-      categories.push(item.category);
-    }
-  });
+  const categories = menu.reduce(
+    (values, item) => {
+      if (!values.includes(item.category)) {
+        values.push(item.category);
+      }
+      return values;
+    },
+    ['all']
+  );
+  // My method is below. about the same amount of code :).
+  // const categories = ['all'];
+  // menuArray.forEach(item => {
+  //   if (!categories.includes(item.category)) {
+  //     categories.push(item.category);
+  //   }
+  // });
   return categories.sort();
 };
 
@@ -105,7 +111,7 @@ const createFilterBtns = categories => {
   return arrBtnHtml.join('');
 };
 
-const displayMenuItems = menuItems => {
+const getMenuItemsHtml = menuItems => {
   const displayMenu = menuItems.map(item => {
     return `
       <article class="menu-item">
@@ -122,35 +128,33 @@ const displayMenuItems = menuItems => {
         </article>
     `;
   });
-  const menuHtml = displayMenu.join('');
-  sectionCenter.innerHTML = menuHtml;
+  return displayMenu.join('');
+};
+
+const filterMenu = e => {
+  const category = e.target.innerHTML;
+  let activeMenu = [];
+  if (category === 'all') {
+    activeMenu = menu;
+  } else {
+    activeMenu = menu.filter(item => item.category === category);
+  }
+  sectionCenter.innerHTML = getMenuItemsHtml(activeMenu);
 };
 
 const sectionCenter = document.querySelector('.section-center');
-
 const btnContainer = document.querySelector('.btn-container');
 
 const uniqueCategories = getUniqueCategories(menu);
 
 // load items
 window.addEventListener('DOMContentLoaded', () => {
-  displayMenuItems(menu);
+  sectionCenter.innerHTML = getMenuItemsHtml(menu);
   btnContainer.innerHTML = createFilterBtns(uniqueCategories);
   const filterBtns = document.querySelectorAll('.filter-btn');
 
-  // filter items
+  // add event listeners to filter items
   filterBtns.forEach(btn => {
-    btn.addEventListener('click', e => {
-      const category = e.target.innerHTML;
-      let activeMenu = [];
-      if (category === 'all') {
-        activeMenu = menu;
-      } else {
-        activeMenu = menu.filter(item => item.category === category);
-      }
-      displayMenuItems(activeMenu);
-    });
+    btn.addEventListener('click', filterMenu);
   });
 });
-
-
